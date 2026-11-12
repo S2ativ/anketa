@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Анкета: расчёт стоимости сайта</title>
+<style>
+  :root{
+    --bg:#090b10; --card:#12161f; --card2:#181d29; --line:#252c3b;
+    --text:#eef1f7; --muted:#8b93a7; --acc:#5ef2c0; --acc2:#8b7bff;
+    --r:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;min-height:100%}
+  body{
+    background:
+      radial-gradient(600px 400px at 85% -10%, rgba(139,123,255,.18), transparent 60%),
+      radial-gradient(500px 400px at -10% 110%, rgba(94,242,192,.12), transparent 60%),
+      var(--bg);
+    background-attachment:fixed;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:18px 18px 120px;min-height:100vh;display:flex;flex-direction:column}
+  .top{display:flex;align-items:center;gap:12px;margin-bottom:22px;min-height:44px}
+  .back{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:20px;cursor:pointer;flex:none}
+  .back[hidden]{visibility:hidden;display:block}
+  .prog{flex:1}
+  .bar{height:6px;border-radius:6px;background:var(--card2);overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc2));border-radius:6px;transition:width .35s ease}
+  .ptxt{font-size:12px;color:var(--muted);margin-top:6px;display:flex;justify-content:space-between}
+  .screen{animation:in .32s ease both}
+  @keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .tag{display:inline-block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin-bottom:10px}
+  h1{font-size:28px;line-height:1.2;margin-bottom:14px}
+  h2{font-size:22px;line-height:1.3;margin-bottom:8px}
+  .hint{color:var(--muted);font-size:14px;line-height:1.45;margin-bottom:20px}
+  .lead{color:#c3c9d8;font-size:16px;line-height:1.55;margin-bottom:22px}
+  .opts{display:grid;gap:10px}
+  .opt{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:15px 16px;min-height:58px;border-radius:var(--r);
+       background:var(--card);border:1.5px solid var(--line);color:var(--text);font-size:16px;cursor:pointer;transition:.15s}
+  .opt:active{transform:scale(.985)}
+  .opt .e{font-size:22px;width:28px;text-align:center;flex:none}
+  .opt .t{flex:1}
+  .opt .d{display:block;font-size:13px;color:var(--muted);margin-top:3px}
+  .opt .chk{width:22px;height:22px;border-radius:7px;border:1.5px solid var(--line);flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;color:#06110c}
+  .opt.single .chk{border-radius:50%}
+  .opt.on{border-color:var(--acc);background:linear-gradient(135deg,rgba(94,242,192,.10),rgba(139,123,255,.08))}
+  .opt.on .chk{background:var(--acc);border-color:var(--acc)}
+  .opt.on .chk::after{content:"✓";font-weight:700}
+  .opt.soft{background:transparent;border-style:dashed}
+  input,textarea{width:100%;padding:16px;border-radius:var(--r);background:var(--card);border:1.5px solid var(--line);color:var(--text);font-size:16px;font-family:inherit;outline:none;transition:.15s}
+  input:focus,textarea:focus{border-color:var(--acc)}
+  textarea{min-height:110px;resize:vertical;line-height:1.45}
+  label.f{display:block;font-size:13px;color:var(--muted);margin:14px 0 8px}
+  .foot{position:fixed;left:0;right:0;bottom:0;padding:14px 18px calc(14px + env(safe-area-inset-bottom));background:linear-gradient(180deg,transparent,var(--bg) 35%)}
+  .foot .in{max-width:560px;margin:0 auto;display:flex;gap:10px}
+  .btn{flex:1;min-height:56px;border-radius:16px;border:0;font-size:17px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+  .btn.main{background:linear-gradient(90deg,var(--acc),#7de8ff);color:#05120d;box-shadow:0 8px 30px rgba(94,242,192,.25)}
+  .btn.main:disabled{opacity:.35;box-shadow:none}
+  .btn.ghost{background:var(--card);color:var(--text);border:1px solid var(--line);flex:0 0 auto;padding:0 18px;font-weight:500;font-size:15px}
+  .btn.wa{background:#25d366;color:#04140a}
+  .stack{display:grid;gap:10px;margin-top:18px}
+  .feat{display:grid;gap:10px;margin:6px 0 24px}
+  .feat div{display:flex;gap:12px;align-items:center;color:#c3c9d8;font-size:15px}
+  .feat b{width:34px;height:34px;border-radius:10px;background:var(--card2);display:flex;align-items:center;justify-content:center;flex:none}
+  .sum{display:grid;gap:8px}
+  .row{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;gap:10px;align-items:flex-start}
+  .row .k{font-size:12px;color:var(--muted);margin-bottom:3px}
+  .row .v{font-size:15px;line-height:1.4;word-break:break-word}
+  .row .v.empty{color:#5b6377}
+  .row .ed{margin-left:auto;color:var(--acc);font-size:13px;flex:none;padding-top:2px}
+  .toast{position:fixed;left:50%;top:16px;transform:translateX(-50%) translateY(-200%);visibility:hidden;background:var(--card2);border:1px solid var(--acc);color:var(--text);padding:12px 18px;border-radius:14px;font-size:15px;transition:.3s;z-index:9;max-width:90%;text-align:center}
+  .toast.show{transform:translateX(-50%) translateY(0);visibility:visible}
+  .note{font-size:13px;color:var(--muted);line-height:1.45;margin-top:14px;text-align:center}
+  .big{font-size:64px;margin:20px 0 10px}
+  .skip{background:none;border:0;color:var(--muted);font-size:15px;padding:12px;cursor:pointer;margin-top:10px;width:100%}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <button class="back" id="back" aria-label="Назад" hidden>←</button>
+    <div class="prog" id="prog" style="visibility:hidden">
+      <div class="bar"><i id="barI"></i></div>
+      <div class="ptxt"><span id="pNum"></span><span id="pLeft"></span></div>
+    </div>
+  </div>
+  <div id="app"></div>
+</div>
+<div class="foot" id="foot"><div class="in" id="footIn"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ========= НАСТРОЙКИ — поменяйте под себя ========= */
+const CONFIG = {
+  name: "Алим",               // как вы представляетесь заказчику
+  whatsapp: "79640117855",          // номер WhatsApp: только цифры, с 7, без + и пробелов
+  replyTime: "в течение дня",       // когда ответите
+};
+/* ================================================== */
+
+const KNOW = {v:"idk", t:"Не знаю — решим вместе", e:"🤷", soft:true};
+
+/* Вопросы. type: single | multi | text | contact
+   show: условие показа (функция от ответов)
+   ex: варианты, которые сбрасывают остальные (в multi) */
+const isShop = a => ["shop","catalog"].includes(a.type);
+const isService = a => ["service","booking"].includes(a.type);
+
+const Q = [
+  {id:"name", k:"Имя / компания", type:"text", q:"Как к вам обращаться?", h:"Имя и, если есть, название компании или проекта.",
+   ph:"Например: Анна, студия «Лён»", req:true},
+  {id:"biz", k:"Сфера бизнеса", type:"text", q:"Чем занимается ваш бизнес?", h:"Пара слов: что продаёте или какие услуги оказываете.",
+   ph:"Например: стоматология в Казани, доставка цветов", area:true, req:true},
+  {id:"now", k:"Текущий сайт", type:"single", q:"У вас уже есть сайт?", opts:[
+    {v:"no", t:"Нет, делаем с нуля", e:"✨"},
+    {v:"redo", t:"Есть, нужен новый", e:"🔄", d:"Старый не нравится или устарел"},
+    {v:"improve", t:"Есть, нужно доработать", e:"🛠", d:"Добавить функции, поправить"}]},
+  {id:"type", k:"Тип сайта", type:"single", q:"Какой сайт нужен?", h:"Выберите самый близкий вариант — если сомневаетесь, нажмите «Не знаю».", opts:[
+    {v:"landing", t:"Лендинг", e:"🎯", d:"Одна страница под заявки"},
+    {v:"corp", t:"Сайт-визитка / корпоративный", e:"🏢", d:"Несколько страниц о компании и услугах"},
+    {v:"shop", t:"Интернет-магазин", e:"🛒", d:"Каталог, корзина, оплата"},
+    {v:"catalog", t:"Каталог без оплаты", e:"📦", d:"Товары с ценами, заказ через заявку"},
+    {v:"booking", t:"Онлайн-запись", e:"📅", d:"Клиенты сами выбирают время"},
+    {v:"service", t:"Сервис / личный кабинет", e:"⚙️", d:"Регистрация, аккаунты, своя логика"},
+    KNOW]},
+  {id:"goal", k:"Цели сайта", type:"multi", q:"Что сайт должен делать для бизнеса?", h:"Можно выбрать несколько.", opts:[
+    {v:"leads", t:"Приводить заявки и звонки", e:"📞"},
+    {v:"sell", t:"Продавать онлайн", e:"💳"},
+    {v:"book", t:"Записывать клиентов", e:"🗓"},
+    {v:"brand", t:"Рассказать о компании, вызвать доверие", e:"🤝"},
+    {v:"auto", t:"Автоматизировать работу", e:"🤖", d:"Меньше ручной рутины для вас и менеджеров"}]},
+  {id:"pages", k:"Количество страниц", type:"single", q:"Примерно сколько страниц или разделов?", h:"Например: главная, услуги, цены, о нас, контакты — это 5.",
+   show:a=>a.type!=="landing", opts:[
+    {v:"2-5", t:"2–5 страниц", e:"📄"},
+    {v:"6-15", t:"6–15 страниц", e:"📑"},
+    {v:"15+", t:"Больше 15", e:"📚"},
+    KNOW]},
+  {id:"items", k:"Количество товаров", type:"single", q:"Сколько товаров будет на сайте?", show:isShop, opts:[
+    {v:"<50", t:"До 50", e:"🔹"},
+    {v:"50-300", t:"50–300", e:"🔷"},
+    {v:"300-2000", t:"300–2000", e:"💠"},
+    {v:"2000+", t:"Больше 2000", e:"🌐"},
+    KNOW]},
+  {id:"itemsLoad", k:"Как загружать товары", type:"single", q:"Как товары будут попадать на сайт?", h:"От этого сильно зависит объём работы.", show:isShop, opts:[
+    {v:"manual", t:"Вручную через админку", e:"✍️"},
+    {v:"excel", t:"Загрузить из Excel-таблицы", e:"📊"},
+    {v:"sync", t:"Автоматически из 1С / МойСклад", e:"🔁", d:"Цены и остатки обновляются сами"},
+    {v:"market", t:"Взять с маркетплейса (WB, Ozon)", e:"🛍"},
+    KNOW]},
+  {id:"pay", k:"Оплата и доставка", type:"multi", q:"Оплата и доставка", h:"Можно выбрать несколько.", show:a=>a.type==="shop", opts:[
+    {v:"card", t:"Онлайн-оплата картой / СБП", e:"💳"},
+    {v:"cod", t:"Оплата при получении", e:"💵"},
+    {v:"delivery", t:"Расчёт доставки (СДЭК, Почта и др.)", e:"🚚"},
+    {v:"pickup", t:"Самовывоз", e:"🏬"},
+    {v:"promo", t:"Скидки, промокоды, бонусы", e:"🏷"},
+    KNOW]},
+  {id:"svc", k:"Функции сервиса", type:"multi", q:"Что должен уметь сервис?", h:"Можно выбрать несколько.", show:isService, opts:[
+    {v:"auth", t:"Регистрация и вход", e:"🔐"},
+    {v:"cabinet", t:"Личный кабинет клиента", e:"👤"},
+    {v:"schedule", t:"Расписание и запись к специалистам", e:"🗓"},
+    {v:"subs", t:"Оплата услуг или подписки", e:"💳"},
+    {v:"roles", t:"Разные роли: админ, менеджер, клиент", e:"👥"},
+    {v:"notify", t:"Уведомления (почта, Telegram, SMS)", e:"🔔"},
+    {v:"custom", t:"Своя уникальная логика", e:"🧩", d:"Опишете в конце анкеты"},
+    KNOW]},
+  {id:"feat", k:"Функции на сайте", type:"multi", q:"Что ещё должно быть на сайте?", h:"Отметьте всё, что нужно. Если ничего — просто нажмите «Далее».", opts:[
+    {v:"form", t:"Форма заявки", e:"📝"},
+    {v:"msg", t:"Кнопки WhatsApp / Telegram", e:"💬"},
+    {v:"tgnotify", t:"Заявки приходят в Telegram", e:"📲"},
+    {v:"calc", t:"Калькулятор стоимости", e:"🧮"},
+    {v:"quiz", t:"Квиз (опрос для клиентов)", e:"❓"},
+    {v:"reviews", t:"Отзывы", e:"⭐"},
+    {v:"blog", t:"Блог / новости / статьи", e:"📰"},
+    {v:"gallery", t:"Портфолио / галерея", e:"🖼"},
+    {v:"map", t:"Карта и контакты", e:"📍"},
+    {v:"lang", t:"Несколько языков", e:"🌍"}]},
+  {id:"integr", k:"Интеграции", type:"multi", q:"Нужно ли связать сайт с другими системами?", h:"Например, чтобы заявки сами падали в CRM, а товары и цены подтягивались из 1С.", ex:["none","idk"], opts:[
+    {v:"crm", t:"CRM (amoCRM, Битрикс24 и др.)", e:"📇"},
+    {v:"1c", t:"1С", e:"🗄"},
+    {v:"ms", t:"МойСклад", e:"📦"},
+    {v:"yclients", t:"YCLIENTS или другая запись", e:"🗓"},
+    {v:"tel", t:"Телефония / колл-трекинг", e:"☎️"},
+    {v:"other", t:"Другая система", e:"🔌", d:"Напишете в конце анкеты"},
+    {v:"none", t:"Не нужно", e:"🚫", soft:true},
+    KNOW]},
+  {id:"design", k:"Дизайн", type:"single", q:"Какой нужен дизайн?", opts:[
+    {v:"unique", t:"Уникальный, под мой бренд", e:"🎨"},
+    {v:"template", t:"Аккуратный, на основе шаблона", e:"🧱", d:"Быстрее и дешевле"},
+    {v:"have", t:"У меня уже есть готовый макет", e:"📐", d:"Figma или другой"},
+    KNOW]},
+  {id:"brand", k:"Фирменный стиль", type:"single", q:"Есть логотип и фирменные цвета?", opts:[
+    {v:"full", t:"Да, есть логотип и цвета", e:"✅"},
+    {v:"logo", t:"Есть только логотип", e:"🔸"},
+    {v:"none", t:"Ничего нет", e:"⭕"}]},
+  {id:"content", k:"Тексты и фото", type:"single", q:"Тексты и фотографии для сайта готовы?", opts:[
+    {v:"ready", t:"Да, всё есть", e:"✅"},
+    {v:"part", t:"Частично", e:"🌗"},
+    {v:"none", t:"Нет, нужно сделать", e:"✍️"}]},
+  {id:"extra", k:"Доп. помощь", type:"multi", q:"С чем ещё помочь?", h:"Можно выбрать несколько или ничего.", ex:["nothing"], opts:[
+    {v:"texts", t:"Написать тексты", e:"✍️"},
+    {v:"images", t:"Подобрать или создать картинки", e:"🖼"},
+    {v:"domain", t:"Купить и настроить домен и хостинг", e:"🌐"},
+    {v:"seo", t:"Базовое SEO и Яндекс Метрика", e:"📈", d:"Чтобы сайт находили и было видно статистику"},
+    {v:"support", t:"Поддержка после запуска", e:"🛟", d:"Правки и помощь по сайту"},
+    {v:"learn", t:"Научить работать с сайтом", e:"🎓"},
+    {v:"nothing", t:"Ничего не нужно", e:"🚫", soft:true}]},
+  {id:"edit", k:"Редактирование", type:"single", q:"Будете сами что-то менять на сайте?", h:"Цены, тексты, фото, товары.", opts:[
+    {v:"often", t:"Да, часто", e:"🔁", d:"Нужна удобная админка"},
+    {v:"rare", t:"Иногда", e:"🕐"},
+    {v:"no", t:"Нет, пусть меняет исполнитель", e:"🙌"},
+    KNOW]},
+  {id:"refs", k:"Примеры сайтов", type:"text", q:"Есть сайты, которые вам нравятся?", h:"Ссылки на сайты конкурентов или просто красивые — и что в них нравится. Можно пропустить.",
+   ph:"Ссылки и пара слов, что нравится", area:true},
+  {id:"time", k:"Сроки", type:"single", q:"Когда нужен сайт?", opts:[
+    {v:"urgent", t:"Срочно, до 2 недель", e:"🔥"},
+    {v:"month", t:"В течение месяца", e:"📆"},
+    {v:"2-3m", t:"За 2–3 месяца", e:"🗓"},
+    {v:"free", t:"Не горит, важнее качество", e:"🧘"}]},
+  {id:"budget", k:"Бюджет", type:"single", q:"На какой бюджет ориентируетесь?", h:"Это поможет предложить подходящий вариант — под любой бюджет можно найти решение.", opts:[
+    {v:"<30", t:"До 30 000 ₽", e:"🟢"},
+    {v:"30-60", t:"30 000 – 60 000 ₽", e:"🟡"},
+    {v:"60-100", t:"60 000 – 100 000 ₽", e:"🟠"},
+    {v:"100-200", t:"100 000 – 200 000 ₽", e:"🔴"},
+    {v:"200+", t:"Больше 200 000 ₽", e:"🟣"},
+    {v:"idk", t:"Пока не знаю — хочу услышать вашу оценку", e:"💬", soft:true}]},
+  {id:"more", k:"Комментарий и контакт", type:"contact", q:"Последний шаг",
+   h:"Что ещё важно знать о проекте? И куда вам удобно ответить."},
+];
+
+/* ========= Состояние ========= */
+let A = {}; let step = -1; // -1 = приветствие; Q.length = сводка; "done" = финал
+const KEY = "brief_site_v1";
+try { const s = JSON.parse(localStorage.getItem(KEY)||"null"); if (s && s.A) { A = s.A; } } catch(e){}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify({A})); } catch(e){} };
+
+const visible = () => Q.filter(q => !q.show || q.show(A));
+const $ = s => document.querySelector(s);
+const app = $("#app"), footIn = $("#footIn");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function toast(t){ const el=$("#toast"); el.textContent=t; el.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove("show"),2600); }
+
+function progress(i, n){
+  const p=$("#prog"); p.style.visibility = (i>=0 && i<n) ? "visible" : "hidden";
+  $("#barI").style.width = (i<0?0:Math.min(100,((i)/n)*100))+"%";
+  $("#pNum").textContent = `Готово ${Math.round(i/n*100)}%`;
+  const left = Math.max(1, Math.round((n-i)*10/60));
+  $("#pLeft").textContent = `≈ ${left} мин`;
+  $("#back").hidden = i < 0 || step==="done";
+}
+
+function render(){
+  window.scrollTo(0,0);
+  const V = visible();
+  if (step === -1) return renderWelcome();
+  if (step === "done") return renderDone();
+  if (step >= V.length) return renderSummary();
+  renderQ(V[step], step, V.length);
+}
+
+function renderWelcome(){
+  progress(-1,1);
+  const started = Object.keys(A).length>0;
+  app.innerHTML = `<div class="screen">
+    <div class="tag">Бриф на сайт</div>
+    <h1>Посчитаем, сколько будет стоить ваш сайт</h1>
+    <p class="lead">Ответьте на несколько вопросов — я пойму задачу и назову примерную стоимость и сроки.</p>
+    <div class="feat">
+      <div><b>⏱</b>3–4 минуты, в основном просто нажимать</div>
+      <div><b>🤷</b>Не знаете ответ — так и отметьте, это нормально</div>
+      <div><b>📲</b>В конце ответы отправятся мне в WhatsApp</div>
+    </div></div>`;
+  footIn.innerHTML = `<button class="btn main" id="go">${started?"Продолжить":"Начать"} →</button>`;
+  $("#go").onclick = () => { step = 0; if(started){ const V=visible(); const i=V.findIndex(q=>A[q.id]===undefined); step = i<0?V.length:i; } render(); };
+}
+
+function renderQ(q, i, n){
+  progress(i, n);
+  let body = "";
+  const val = A[q.id];
+  if (q.type==="single" || q.type==="multi"){
+    body = `<div class="opts">` + q.opts.map(o=>{
+      const on = q.type==="single" ? val===o.v : (val||[]).includes(o.v);
+      return `<button class="opt ${q.type==="single"?"single":""} ${on?"on":""} ${o.soft?"soft":""}" data-v="${o.v}">
+        <span class="e">${o.e||""}</span><span class="t">${esc(o.t)}${o.d?`<span class="d">${esc(o.d)}</span>`:""}</span><span class="chk"></span></button>`;
+    }).join("") + `</div>`;
+  } else if (q.type==="text"){
+    body = q.area ? `<textarea id="tx" placeholder="${esc(q.ph||"")}">${esc(val||"")}</textarea>`
+                  : `<input id="tx" placeholder="${esc(q.ph||"")}" value="${esc(val||"")}" autocomplete="off">`;
+  } else if (q.type==="contact"){
+    const v = val||{};
+    body = `<label class="f">Комментарий, пожелания, особенности (необязательно)</label>
+      <textarea id="cm" placeholder="Например: нужна интеграция с нашей программой учёта, важно успеть к открытию">${esc(v.comment||"")}</textarea>
+      <label class="f">Телефон или ник в Telegram для ответа</label>
+      <input id="ct" placeholder="+7 ... или @username" value="${esc(v.contact||"")}" autocomplete="tel">`;
+  }
+  app.innerHTML = `<div class="screen"><h2>${esc(q.q)}</h2>${q.h?`<p class="hint">${esc(q.h)}</p>`:`<div style="height:14px"></div>`}${body}
+    ${(!q.req && q.type!=="contact" && q.type!=="multi") ? `<button class="skip" id="skip">Пропустить →</button>`:""}</div>`;
+
+  const next = () => { save(); step++; render(); };
+  const sk = $("#skip"); if (sk) sk.onclick = () => { if(A[q.id]===undefined) A[q.id]=null; next(); };
+
+  if (q.type==="single"){
+    app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+      A[q.id]=b.dataset.v; app.querySelectorAll(".opt").forEach(x=>x.classList.toggle("on",x===b));
+      save(); setTimeout(next, 220);
+    });
+    footIn.innerHTML = val!=null ? `<button class="btn main" id="nx">Далее →</button>` : "";
+    if (val!=null) $("#nx").onclick = next;
+  }
+  if (q.type==="multi"){
+    const ex = q.ex || ["idk"];
+    if (!Array.isArray(A[q.id])) A[q.id] = [];
+    app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+      const v=b.dataset.v; let arr=A[q.id];
+      if (arr.includes(v)) arr = arr.filter(x=>x!==v);
+      else arr = ex.includes(v) ? [v] : arr.filter(x=>!ex.includes(x)).concat(v);
+      A[q.id]=arr; save();
+      app.querySelectorAll(".opt").forEach(x=>x.classList.toggle("on",arr.includes(x.dataset.v)));
+    });
+    footIn.innerHTML = `<button class="btn main" id="nx">Далее →</button>`;
+    $("#nx").onclick = next;
+  }
+  if (q.type==="text"){
+    const tx=$("#tx");
+    footIn.innerHTML = `<button class="btn main" id="nx" ${q.req&&!(val||"").trim()?"disabled":""}>Далее →</button>`;
+    const nx=$("#nx");
+    tx.oninput=()=>{ A[q.id]=tx.value; save(); if(q.req) nx.disabled=!tx.value.trim(); };
+    if (!q.area) tx.onkeydown=e=>{ if(e.key==="Enter" && !nx.disabled){ e.preventDefault(); next(); } };
+    nx.onclick=next;
+  }
+  if (q.type==="contact"){
+    const upd=()=>{ A[q.id]={comment:$("#cm").value, contact:$("#ct").value}; save(); };
+    $("#cm").oninput=upd; $("#ct").oninput=upd;
+    footIn.innerHTML = `<button class="btn main" id="nx">Проверить ответы →</button>`;
+    $("#nx").onclick=()=>{ upd(); next(); };
+  }
+}
+
+function answerText(q){
+  const v = A[q.id];
+  if (v==null || v==="" ) return "";
+  if (q.type==="single") { const o=q.opts.find(o=>o.v===v); return o?o.t:""; }
+  if (q.type==="multi") return (v||[]).map(x=>(q.opts.find(o=>o.v===x)||{}).t).filter(Boolean).join(", ");
+  if (q.type==="contact") return [v.comment&&v.comment.trim(), v.contact&&("Контакт: "+v.contact.trim())].filter(Boolean).join(" · ");
+  return String(v).trim();
+}
+
+function renderSummary(){
+  const V=visible(); progress(V.length, V.length); $("#prog").style.visibility="hidden"; $("#back").hidden=false;
+  app.innerHTML = `<div class="screen"><div class="tag">Почти готово</div><h2>Проверьте ответы</h2>
+    <p class="hint">Нажмите на любой пункт, чтобы изменить.</p><div class="sum">` +
+    V.map((q,i)=>{ const t=answerText(q); return `<div class="row" data-i="${i}"><div><div class="k">${esc(q.k)}</div>
+      <div class="v ${t?"":"empty"}">${t?esc(t):"не указано"}</div></div><span class="ed">изменить</span></div>`; }).join("") + `</div></div>`;
+  app.querySelectorAll(".row").forEach(r=>r.onclick=()=>{ step=+r.dataset.i; render(); });
+  footIn.innerHTML = `<button class="btn main" id="nx">Всё верно →</button>`;
+  $("#nx").onclick=()=>{ step="done"; render(); };
+}
+
+function report(){
+  const V=visible();
+  const lines = ["📋 *Бриф на сайт*", ""];
+  V.forEach(q=>{ lines.push(`▫️ *${q.k}:* ${answerText(q)||"—"}`); });
+  lines.push("", "_Заполнено через анкету_");
+  return lines.join("\n");
+}
+
+async function copyText(t){
+  try { await navigator.clipboard.writeText(t); return true; } catch(e){}
+  try { const ta=document.createElement("textarea"); ta.value=t; ta.style.position="fixed"; ta.style.opacity="0";
+    document.body.appendChild(ta); ta.select(); const ok=document.execCommand("copy"); ta.remove(); return ok; } catch(e){ return false; }
+}
+
+function renderDone(){
+  progress(-1,1); $("#back").hidden=false;
+  const text = report();
+  const url = "https://wa.me/"+CONFIG.whatsapp+"?text="+encodeURIComponent(text);
+  const tooLong = url.length > 6000;
+  app.innerHTML = `<div class="screen" style="text-align:center">
+    <div class="big">🚀</div><h2>Осталось отправить</h2>
+    <p class="hint">Нажмите кнопку — откроется WhatsApp с готовым сообщением, останется нажать «Отправить».</p>
+    <div class="stack">
+      <a class="btn wa" id="wa" href="${tooLong ? "https://wa.me/"+CONFIG.whatsapp : url}" target="_blank" rel="noopener">💬 Отправить в WhatsApp</a>
+      <button class="btn ghost" id="cp" style="flex:1">📋 Скопировать ответы</button>
+    </div>
+    <p class="note">${tooLong?"Ответы скопируются автоматически — в WhatsApp просто вставьте их в сообщение.":"Если WhatsApp не открылся — скопируйте ответы и вставьте в любой чат со мной."}</p>
+    <p class="note">${esc(CONFIG.name)} · отвечу ${esc(CONFIG.replyTime)}</p>
+  </div>`;
+  footIn.innerHTML = "";
+  $("#wa").addEventListener("click", async ()=>{ const ok=await copyText(text); if(tooLong) toast(ok?"Ответы скопированы — вставьте их в чат":"Скопируйте ответы кнопкой ниже"); });
+  $("#cp").onclick = async ()=>{ toast((await copyText(text))?"Скопировано ✓":"Не получилось скопировать"); };
+}
+
+$("#back").onclick = () => {
+  const V=visible();
+  if (step==="done") step = V.length;
+  else if (step>0) step = Math.min(step, V.length) - 1;
+  else step = -1;
+  render();
+};
+render();
+</script>
+</body>
+</html>
